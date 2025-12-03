@@ -69,4 +69,92 @@ public class MovieService {
         }
         return Optional.ofNullable(movieMap.get(id));
     }
+
+    /**
+     * Searches for movies based on provided criteria with pirate flair!
+     * Arrr! This method be the treasure map to finding yer favorite films, matey!
+     * 
+     * @param name Movie name to search for (case-insensitive partial match)
+     * @param id Specific movie ID to find
+     * @param genre Genre to filter by (case-insensitive partial match)
+     * @return List of movies matching the search criteria
+     */
+    public List<Movie> searchMovies(String name, Long id, String genre) {
+        logger.info("Ahoy! Starting treasure hunt for movies with criteria - name: '{}', id: {}, genre: '{}'", 
+                   name, id, genre);
+        
+        List<Movie> searchResults = new ArrayList<>();
+        
+        // If no search criteria provided, return empty list with a pirate message
+        if ((name == null || name.trim().isEmpty()) && 
+            id == null && 
+            (genre == null || genre.trim().isEmpty())) {
+            logger.warn("Arrr! No search criteria provided, ye scurvy dog! Returning empty treasure chest.");
+            return searchResults;
+        }
+        
+        // Start with all movies and filter down
+        for (Movie movie : movies) {
+            boolean matches = true;
+            
+            // Filter by ID if provided (exact match)
+            if (id != null) {
+                matches = matches && movie.getId() == id.longValue();
+            }
+            
+            // Filter by name if provided (case-insensitive partial match)
+            if (name != null && !name.trim().isEmpty()) {
+                matches = matches && movie.getMovieName().toLowerCase()
+                    .contains(name.trim().toLowerCase());
+            }
+            
+            // Filter by genre if provided (case-insensitive partial match)
+            if (genre != null && !genre.trim().isEmpty()) {
+                matches = matches && movie.getGenre().toLowerCase()
+                    .contains(genre.trim().toLowerCase());
+            }
+            
+            if (matches) {
+                searchResults.add(movie);
+            }
+        }
+        
+        if (searchResults.isEmpty()) {
+            logger.info("Shiver me timbers! No movies found matching yer search criteria. The treasure chest be empty, matey!");
+        } else {
+            logger.info("Yo ho ho! Found {} movies in our treasure hunt!", searchResults.size());
+        }
+        
+        return searchResults;
+    }
+
+    /**
+     * Searches for movies by name only - a simpler treasure hunt!
+     * 
+     * @param movieName Name to search for (case-insensitive partial match)
+     * @return List of movies with names matching the search term
+     */
+    public List<Movie> searchMoviesByName(String movieName) {
+        if (movieName == null || movieName.trim().isEmpty()) {
+            logger.warn("Arrr! Empty movie name provided for search, ye landlubber!");
+            return new ArrayList<>();
+        }
+        
+        return searchMovies(movieName, null, null);
+    }
+
+    /**
+     * Searches for movies by genre only - find all films of a particular type!
+     * 
+     * @param genreType Genre to search for (case-insensitive partial match)
+     * @return List of movies matching the genre
+     */
+    public List<Movie> searchMoviesByGenre(String genreType) {
+        if (genreType == null || genreType.trim().isEmpty()) {
+            logger.warn("Arrr! Empty genre provided for search, ye scallywag!");
+            return new ArrayList<>();
+        }
+        
+        return searchMovies(null, null, genreType);
+    }
 }
